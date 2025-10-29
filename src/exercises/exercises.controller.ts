@@ -7,18 +7,20 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ExercisesService } from './exercises.service';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { UpdateExerciseDto } from './dto/update-exercise.dto';
+import { PaginationDto } from 'src/common/pagination.dto';
 
 @Controller('exercises')
 export class ExercisesController {
   constructor(private readonly exercisesService: ExercisesService) {}
 
   @Get()
-  listAllExercises() {
-    return this.exercisesService.findAll();
+  listAllExercises(@Query() paginationDto: PaginationDto) {
+    return this.exercisesService.findAll(paginationDto);
   }
 
   @Get(':id')

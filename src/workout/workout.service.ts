@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
+import { PaginationDto } from 'src/common/pagination.dto';
 
 @Injectable()
 export class WorkoutService {
@@ -28,11 +29,29 @@ export class WorkoutService {
     }
   }
 
-  async listAll() {
+  async listAll(paginationDto: PaginationDto) {
     try {
-      const workout = await this.prisma.workout.findMany();
+      const { limit = 10, page = 1 } = paginationDto;
+      const skip = (page - 1) * limit;
 
-      return workout;
+      const workouts = await this.prisma.workout.findMany({
+        take: limit,
+        skip: skip,
+        orderBy: { createdAt: 'asc' },
+        include: { exercises: true },
+      });
+      const total = await this.prisma.workout.count();
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        data: workouts,
+        pagination: {
+          total, // número total de treinos
+          totalPages, // total de páginas disponíveis
+          currentPage: page, // página atual
+          limit, // quantidade de registros por página
+        },
+      };
     } catch (error) {
       console.error(error);
       throw new HttpException(
@@ -47,6 +66,9 @@ export class WorkoutService {
       const workout = await this.prisma.workout.findFirst({
         where: {
           id: id,
+        },
+        include: {
+          exercises: true,
         },
       });
 

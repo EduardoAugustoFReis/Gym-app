@@ -7,10 +7,12 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { WorkoutService } from './workout.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
+import { PaginationDto } from 'src/common/pagination.dto';
 
 @Controller('workout')
 export class WorkoutController {
@@ -22,8 +24,8 @@ export class WorkoutController {
   }
 
   @Get()
-  listAllWorkout() {
-    return this.workoutService.listAll();
+  listAllWorkout(@Query() paginationDto: PaginationDto) {
+    return this.workoutService.listAll(paginationDto);
   }
 
   @Get(':id')

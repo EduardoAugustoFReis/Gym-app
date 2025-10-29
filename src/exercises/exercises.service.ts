@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { WorkoutService } from 'src/workout/workout.service';
 import { UpdateExerciseDto } from './dto/update-exercise.dto';
+import { PaginationDto } from 'src/common/pagination.dto';
 
 @Injectable()
 export class ExercisesService {
@@ -11,11 +12,23 @@ export class ExercisesService {
     private readonly workoutService: WorkoutService,
   ) {}
 
-  async findAll() {
+  async findAll(paginationDto: PaginationDto) {
     try {
-      const exercises = await this.prisma.exercise.findMany();
+      const { limit = 10, page = 1 } = paginationDto;
+      const skip = (page - 1) * limit;
+      const exercises = await this.prisma.exercise.findMany({
+        take: limit,
+        skip,
+        orderBy: { createdAt: 'asc' },
+      });
 
-      return exercises;
+      const total = await this.prisma.exercise.count();
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        data: exercises,
+        pagination: { total, totalPages, currentPage: page, limit },
+      };
     } catch (error) {
       console.error(error);
       throw new HttpException(
