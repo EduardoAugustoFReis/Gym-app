@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ExercisesService } from './exercises.service';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
+import { UpdateExerciseDto } from './dto/update-exercise.dto';
 
 @Controller('exercises')
 export class ExercisesController {
@@ -25,12 +26,12 @@ export class ExercisesController {
     return this.exercisesService.findOne(id);
   }
 
-  @Post(':workoutId')
+  @Post('workout/:workoutId')
   createExercise(
     @Param('workoutId', ParseIntPipe) workoutId: number,
-    @Body() createExercise: CreateExerciseDto,
+    @Body() createExerciseDto: CreateExerciseDto,
   ) {
-    return this.exercisesService.create(createExercise, workoutId);
+    return this.exercisesService.create(workoutId, createExerciseDto);
   }
 
   @Delete(':id')
@@ -38,8 +39,12 @@ export class ExercisesController {
     return this.exercisesService.delete(id);
   }
 
-  @Patch(':id')
-  updateExercise(@Param('id', ParseIntPipe) id: number) {
-    return this.exercisesService.update(id);
+  @Patch(':id/workout/:workoutId')
+  updateExercise(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('workoutId', ParseIntPipe) workoutId: number,
+    @Body() updateExerciseDto: UpdateExerciseDto,
+  ) {
+    return this.exercisesService.update(id, workoutId, updateExerciseDto);
   }
 }

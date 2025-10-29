@@ -1,22 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import {
-  IsInt,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateExerciseDto {
+export class UpdateExerciseDto {
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: string;
 
   @IsString()
   @IsOptional()
   description?: string;
 
   @IsString()
+  @IsOptional()
   equipment?: string;
 
   @IsInt()
