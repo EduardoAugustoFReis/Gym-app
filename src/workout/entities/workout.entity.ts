@@ -1,4 +1,5 @@
 import { Exercises } from 'src/exercises/entities/exercise.entity';
+import { User } from 'src/user/entities/user.entity';
 
 export enum Level {
   BEGINNER = 'BEGINNER',
@@ -17,5 +18,6 @@ export class Workout {
   createdAt: string;
   updatedAt: string;
 
-  exercises?: Exercises; // Relacionamento 1:N
+  user?: User;
+  exercises?: Exercises[]; // Relacionamento 1:N
 }

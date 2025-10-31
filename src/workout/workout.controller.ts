@@ -8,19 +8,29 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { WorkoutService } from './workout.service';
 import { CreateWorkoutDto } from './dto/create-workout.dto';
 import { UpdateWorkoutDto } from './dto/update-workout.dto';
 import { PaginationDto } from 'src/common/pagination.dto';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import type { RequestWithUser } from 'src/common/interfaces/request-with-user';
 
-@Controller('workout')
+@Controller('workouts')
 export class WorkoutController {
   constructor(private readonly workoutService: WorkoutService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  createWorkout(@Body() createWorkoutDto: CreateWorkoutDto) {
-    return this.workoutService.create(createWorkoutDto);
+  createWorkout(
+    @Body() createWorkoutDto: CreateWorkoutDto,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.sub;
+    return this.workoutService.create(createWorkoutDto, userId);
   }
 
   @Get()
@@ -28,21 +38,34 @@ export class WorkoutController {
     return this.workoutService.listAll(paginationDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  listOneWorkout(@Param('id', ParseIntPipe) id: number) {
-    return this.workoutService.listOne(id);
+  listOneWorkout(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.sub;
+    return this.workoutService.listOne(id, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  deleteWorkout(@Param('id', ParseIntPipe) id: number) {
-    return this.workoutService.delete(id);
+  deleteWorkout(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user.sub;
+    return this.workoutService.delete(id, userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   updateWorkout(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateWorkoutDto: UpdateWorkoutDto,
+    @Req() req: RequestWithUser,
   ) {
-    return this.workoutService.update(id, updateWorkoutDto);
+    const userId = req.user.sub;
+    return this.workoutService.update(id, updateWorkoutDto, userId);
   }
 }

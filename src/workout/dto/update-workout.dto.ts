@@ -1,16 +1,4 @@
-import { IsEnum, IsNumber, IsString } from 'class-validator';
-import { Level } from '../entities/workout.entity';
+import { CreateWorkoutDto } from './create-workout.dto';
+import { PartialType } from '@nestjs/mapped-types';
 
-export class UpdateWorkoutDto {
-  @IsString()
-  name?: string;
-
-  @IsString()
-  description?: string;
-
-  @IsNumber()
-  duration?: number;
-
-  @IsEnum(Level)
-  level?: Level;
-}
+export class UpdateWorkoutDto extends PartialType(CreateWorkoutDto) {}

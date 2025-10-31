@@ -19,29 +19,41 @@ enum Level {
   ADVANCE
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workouts Workout[]
+}
+
 model Workout {
   id          Int      @id @default(autoincrement())
   name        String
   description String
   duration    Float
   level       Level
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  exercises Exercise[] // relação 1:N com Exercise
+  exercises Exercise[]
 }
 
 model Exercise {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   description String?
   equipment   String?
   reps        Int?
   sets        Int?
-  duration    Float? // em minutos, se for exercício baseado em tempo
+  duration    Float?
   workoutId   Int
-  workout     Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  workout     Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

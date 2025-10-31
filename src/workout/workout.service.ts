@@ -8,7 +8,7 @@ import { PaginationDto } from 'src/common/pagination.dto';
 export class WorkoutService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createWorkoutDto: CreateWorkoutDto) {
+  async create(createWorkoutDto: CreateWorkoutDto, userId: number) {
     try {
       const workout = await this.prisma.workout.create({
         data: {
@@ -16,6 +16,9 @@ export class WorkoutService {
           description: createWorkoutDto.description,
           level: createWorkoutDto.level,
           duration: createWorkoutDto.duration,
+          user: {
+            connect: { id: userId },
+          },
         },
       });
 
@@ -61,7 +64,7 @@ export class WorkoutService {
     }
   }
 
-  async listOne(id: number) {
+  async listOne(id: number, userId: number) {
     try {
       const workout = await this.prisma.workout.findFirst({
         where: {
@@ -76,6 +79,13 @@ export class WorkoutService {
         throw new HttpException('Treino não encontrado.', HttpStatus.NOT_FOUND);
       }
 
+      if (workout.userId !== userId) {
+        throw new HttpException(
+          'Acesso negado: você não pode editar este treino.',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
       return workout;
     } catch (error) {
       console.error(error);
@@ -86,7 +96,7 @@ export class WorkoutService {
     }
   }
 
-  async delete(id: number) {
+  async delete(id: number, userId: number) {
     try {
       const workout = await this.prisma.workout.findFirst({
         where: {
@@ -96,6 +106,18 @@ export class WorkoutService {
 
       if (!workout) {
         throw new HttpException('Treino não encontrado.', HttpStatus.NOT_FOUND);
+      }
+
+      console.log({
+        treinoUserId: workout.userId,
+        usuarioDoToken: userId,
+      });
+
+      if (workout.userId !== userId) {
+        throw new HttpException(
+          'Acesso negado: você não pode editar este treino.',
+          HttpStatus.UNAUTHORIZED,
+        );
       }
 
       await this.prisma.workout.delete({
@@ -114,7 +136,7 @@ export class WorkoutService {
     }
   }
 
-  async update(id: number, updateWorkoutDto: UpdateWorkoutDto) {
+  async update(id: number, updateWorkoutDto: UpdateWorkoutDto, userId: number) {
     try {
       const workout = await this.prisma.workout.findFirst({
         where: {
@@ -124,6 +146,13 @@ export class WorkoutService {
 
       if (!workout) {
         throw new HttpException('Treino não encontrado.', HttpStatus.NOT_FOUND);
+      }
+
+      if (workout.userId !== userId) {
+        throw new HttpException(
+          'Acesso negado: você não pode editar este treino.',
+          HttpStatus.UNAUTHORIZED,
+        );
       }
 
       const updatedWorkout = await this.prisma.workout.update({
